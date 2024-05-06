@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bristol Parts Analysis</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="{{ url_for('static', filename='index.js') }}" defer></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Análise de Cores - Bristol Parts</h1>
+        <form id="inputForm">
+            <div class="input-group">
+                <label for="itemName">Nome do Item:</label>
+                <input type="text" id="itemName" name="itemName">
+            </div>
+            <div class="input-group">
+                <label for="LValue">L* (Luminosidade):</label>
+                <input type="text" id="LValue" name="LValue">
+            </div>
+            <div class="input-group">
+                <label for="AValue">a* (Cromaticidade - Verde/Vermelho):</label>
+                <input type="text" id="AValue" name="AValue">
+            </div>
+            <div class="input-group">
+                <label for="BValue">b* (Cromaticidade - Azul/Amarelo):</label>
+                <input type="text" id="BValue" name="BValue">
+            </div>
+            <button type="button" onclick="generateAnalysis()">Gerar</button>
+            <button type="reset">Resetar</button>
+        </form>
+    </div>
+    <div id="graph"></div>
+</body>
+
+</html>
