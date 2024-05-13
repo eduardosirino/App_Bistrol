@@ -1,0 +1,133 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background-color: #f8f8f8;
+}
+
+.logo img {
+    height: 50px;
+}
+
+.header-buttons {
+    display: flex;
+    align-items: center;
+}
+
+.header-button {
+    text-decoration: none;
+    color: #000000;
+    background-color: #e7e7e7;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 16px;
+    margin-left: 10px;
+}
+
+.main-container {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.input-group.full {
+    width: 100%;
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    margin-bottom: 20px;
+    gap: 5px;
+}
+
+.input-group {
+    flex-grow: 1;
+    margin: 0 5px;
+}
+
+.inputs-buttons {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.buttons {
+    display: flex;
+    justify-content: space-between;
+    width: 300px;
+}
+
+button {
+    flex-grow: 1;
+    margin: 0 5px;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #3d7e3f;
+    color: white;
+}
+
+button[type="reset"] {
+    background-color: #f95145;
+}
+
+input {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    background-color: white;
+    margin: 2px;
+    width: 75%;
+}
+
+.graph-container {
+    width: 75%;
+    height: 400px;
+    margin-top: 20px;
+    background-color: #ddd;
+    margin: 15px 5px;
+}
+
+.ui-autocomplete {
+    position: absolute;
+    z-index: 1000;
+    cursor: default;
+    padding: 0;
+    margin-top: 2px;
+    list-style: none;
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    max-height: 300px;
+    overflow-y: auto;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: inherit;
+}
+
+.ui-autocomplete .ui-menu-item-wrapper {
+    padding: 10px;
+    border-bottom: 1px solid #efefef;
+}
+
+.ui-autocomplete .ui-menu-item-wrapper:hover {
+    background-color: #e6e6e6;
+}
+
+.status-message {
+    font-weight: bold;
+    font-size: xx-large;
+}

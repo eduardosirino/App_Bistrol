@@ -1,0 +1,34 @@
+<!-- templates/login.html -->
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Acesse a sua conta</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+</head>
+<body>
+    <div class="login-container">
+        <img src="{{ url_for('static', filename='img/image.png') }}" alt="Bistrol Logo" class="logo">
+        <div class="login-form">
+            <h2>Acesse a sua conta</h2>
+            {% for message in get_flashed_messages() %}
+                <div class="alert">{{ message }}</div>
+            {% endfor %}
+            <form action="{{ url_for('login') }}" method="post">
+                <div class="input-group {% if get_flashed_messages() %}error{% endif %}">
+                    <label for="email">E-mail</label>
+                    <input type="email" id="username" name="username" required>
+                </div>
+                <div class="input-group {% if get_flashed_messages() %}error{% endif %}">
+                    <label for="password">Senha</label>
+                    <input type="password" id="password" name="password" required>
+                    <span class="show-password" onclick="togglePassword()">Mostrar</span>
+                </div>
+                <button type="submit">Login</button>
+                <!-- <a href="recovery">Esqueceu a senha?</a> -->
+            </form>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/show-hide.js') }}" defer></script>
+</body>
+</html>

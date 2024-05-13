@@ -1,40 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bristol Parts Analysis</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <script src="{{ url_for('static', filename='index.js') }}" defer></script>
+    <title>Análise de Cores - Bristol Parts</title>
+    <link rel="icon" href="{{ url_for('static', filename='img/image.png') }}" type="image/x-icon">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/image.png') }}" type="image/x-icon">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <script src="{{ url_for('static', filename='js/index.js') }}" defer></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
-
 <body>
-    <div class="container">
-        <h1>Análise de Cores - Bristol Parts</h1>
-        <form id="inputForm">
+    <header class="header">
+        <a class="logo" href="/"><img src="{{ url_for('static', filename='img/image.png') }}" alt="logo"></a>
+        <h2>ANÁLISE DE CORES</h2>
+        <div class="header-buttons">
+            {% if current_user.is_authenticated and current_user.profile == 'ADMIN' %}
+            <a href="/register"><button class="header-button">Registrar</button></a>
+            {% endif %}
+            <a href="/logout"><button id="logout" class="header-button">Sair</button></a>
+        </div>
+    </header>
+    <div class="main-container">
+        <div class="input-group full" style="margin-bottom: 0px;">
+            <div class="status-message" style="position: fixed; bottom: 10px; right: 10px;">Pronto</div>
+            <label for="itemName">Nome do Item:</label>
+        </div>
+        <div class="input-group full" style="margin-top: 0px;">
+            <input type="text" id="itemName" name="itemName">
+        </div>
+        <div class="inputs-buttons">
             <div class="input-group">
-                <label for="itemName">Nome do Item:</label>
-                <input type="text" id="itemName" name="itemName">
-            </div>
-            <div class="input-group">
-                <label for="LValue">L* (Luminosidade):</label>
+                <label for="LValue">L* (Luminosidade): <span id="LValue-label"></span></label>
                 <input type="text" id="LValue" name="LValue">
             </div>
             <div class="input-group">
-                <label for="AValue">a* (Cromaticidade - Verde/Vermelho):</label>
+                <label for="AValue">a* (Cromaticidade - Verde/Vermelho): <span id="AValue-label"></span></label>
                 <input type="text" id="AValue" name="AValue">
             </div>
             <div class="input-group">
-                <label for="BValue">b* (Cromaticidade - Azul/Amarelo):</label>
+                <label for="BValue">b* (Cromaticidade - Azul/Amarelo): <span id="BValue-label"></span></label>
                 <input type="text" id="BValue" name="BValue">
             </div>
-            <button type="button" onclick="generateAnalysis()">Gerar</button>
-            <button type="reset">Resetar</button>
-        </form>
+            <div class="buttons">
+                <!-- <button type="button" onclick="updateInputColors(); generateAnalysis();">Gerar</button> -->
+                <button type="reset" id="reset">Resetar</button>
+            </div>
+        </div>
+        <div class="graph-container" id="graph"></div>
     </div>
-    <div id="graph"></div>
 </body>
-
 </html>
