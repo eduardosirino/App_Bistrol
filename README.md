@@ -1,4 +1,4 @@
-# bristol-graph
+# App Bistrol - Análise de Cores
 
 ## Instalação do projeto:
 
@@ -28,6 +28,21 @@ source venv/bin/activate
 python3 -m pip install --upgrade pip
 
 pip install -r requirements.txt
+```
+
+## Criar tabela de usuários no banco de dados:
+
+Para criar a tabela de acordo com o software, crie através do comando
+
+```SQL
+CREATE TABLE usersAnaliseCores (
+    id VARCHAR(255) NOT NULL UNIQUE PRIMARY KEY,
+    email VARCHAR(510) NOT NULL UNIQUE,
+    name TEXT NOT NULL,
+    office VARCHAR(255) NOT NULL,
+    password VARCHAR(300) NOT NULL,
+    profile enum('ADMIN', 'COMUM') NOT NULL
+);
 ```
 
 ## Configuração do projeto:
