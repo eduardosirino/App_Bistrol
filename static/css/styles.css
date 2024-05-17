@@ -26,8 +26,8 @@ html, body {
 
 .header-button {
     text-decoration: none;
-    color: #000000;
-    background-color: #e7e7e7;
+    color: #ffffff;
+    background-color: #5d5aa7;
     padding: 10px 20px;
     border: none;
     cursor: pointer;
@@ -130,4 +130,246 @@ input {
 .status-message {
     font-weight: bold;
     font-size: xx-large;
+}
+
+#change-password-modal {
+    display: none;
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 400px;
+    position: relative;
+    font-family: Arial, sans-serif;
+    z-index: 1001;
+}
+
+#change-password-modal h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+#change-password-form .input-group {
+    margin-bottom: 20px;
+}
+
+#change-password-form .input-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #666;
+}
+
+#change-password-form .input-group input {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+#change-password-form .input-group input:focus {
+    border-color: #2c1c75;
+    outline: none;
+}
+
+#change-password-form button {
+    width: 100%;
+    background-color: #6a67ce;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+#change-password-form button:hover {
+    background-color: #5d5aa7;
+}
+
+#change-password-form #cancel-change-password {
+    background-color: #ccc;
+    color: #333;
+}
+
+#change-password-form #cancel-change-password:hover {
+    background-color: #999;
+}
+
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    z-index: 1000;
+}
+
+.ui-dialog {
+    position: fixed;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%);
+    z-index: 1001;
+}
+
+.ui-dialog-titlebar-close {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    color: #fff;
+}
+  
+.ui-dialog-titlebar {
+    display: none;
+}
+  
+.ui-widget-overlay {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.graph-and-info-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.graph-container {
+    flex: 3;
+    margin-right: 20px;
+}
+
+.user-info {
+    align-content: center;
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    text-align: left;
+}
+
+@media (max-width: 1200px) {
+    .header {
+        align-items: flex-start;
+    }
+
+    .header h2 {
+        margin: 10px 0;
+    }
+
+    .header-buttons {
+        justify-content: flex-end;
+    }
+
+    .header-button {
+        margin: 5px 5px 5px 0;
+    }
+}
+
+@media (max-width: 992px) {
+    .graph-and-info-container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .graph-container {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 20px;
+    }
+
+    .user-info {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-container {
+        padding: 10px;
+    }
+
+    .inputs-buttons {
+        flex-direction: column;
+    }
+
+    .buttons {
+        width: 100%;
+        justify-content: center;
+        margin-top: 10px;
+    }
+
+    .input-group {
+        width: 100%;
+    }
+
+    .graph-container {
+        width: 100%;
+        height: 300px;
+    }
+
+    .header-buttons {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .header-button {
+        width: 100%;
+        margin: 5px 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .header {
+        padding: 10px;
+    }
+
+    .header h2 {
+        font-size: 1.5em;
+    }
+
+    .header-buttons {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .header-button {
+        width: 100%;
+        text-align: center;
+    }
+
+    .main-container {
+        padding: 5px;
+    }
+
+    .input-group.full {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .status-message {
+        font-size: large;
+        position: relative;
+        bottom: 0;
+        right: 0;
+        margin-top: 10px;
+    }
+
+    .graph-container {
+        height: 200px;
+    }
+
+    .graph-and-info-container {
+        flex-direction: column;
+    }
+
+    .user-info {
+        margin-top: 10px;
+        width: 100%;
+    }
 }

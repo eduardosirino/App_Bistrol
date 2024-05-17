@@ -7,10 +7,6 @@
     <link rel="icon" href="{{ url_for('static', filename='img/image.png') }}" type="image/x-icon">
     <link rel="shortcut icon" href="{{ url_for('static', filename='img/image.png') }}" type="image/x-icon">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
-    <script src="{{ url_for('static', filename='js/index.js') }}" defer></script>
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
 <body>
     <header class="header">
@@ -20,6 +16,7 @@
             {% if current_user.is_authenticated and current_user.profile == 'ADMIN' %}
             <a href="/register"><button class="header-button">Registrar</button></a>
             {% endif %}
+            <button id="change-password-button" class="header-button">Trocar Senha</button>
             <a href="/logout"><button id="logout" class="header-button">Sair</button></a>
         </div>
     </header>
@@ -49,7 +46,43 @@
                 <button type="reset" id="reset">Resetar</button>
             </div>
         </div>
-        <div class="graph-container" id="graph"></div>
+        <div class="graph-and-info-container">
+            <div class="graph-container" id="graph"></div>
+            {% if current_user.is_authenticated %}
+            <div class="user-info">
+                <p>Usuário autenticado:</p>
+                <p>Nome: {{ current_user.name }}</p>
+                <p>E-mail: {{ current_user.username }}</p>
+                <p>Cargo: {{ current_user.office }}</p>
+                <p>Perfil: {{ current_user.profile|capitalize }}</p>
+            </div>
+            {% endif %}
+        </div>
     </div>
+    <div id="change-password-modal" style="display:none;">
+        <h2>Trocar Senha</h2>
+        <form id="change-password-form">
+            <div class="input-group">
+                <label for="current-password">Senha Atual</label>
+                <input type="password" id="current-password" name="current-password" required>
+            </div>
+            <div class="input-group">
+                <label for="new-password">Nova Senha</label>
+                <input type="password" id="new-password" name="new-password" required>
+            </div>
+            <div class="input-group">
+                <label for="confirm-password">Confirme a Nova Senha</label>
+                <input type="password" id="confirm-password" name="confirm-password" required>
+            </div>
+            <button type="submit">Atualizar Senha</button>
+            <button type="button" id="cancel-change-password">Cancelar</button>
+        </form>
+    </div>
+    <div class="modal-overlay" id="overlay-modal"></div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <script src="{{ url_for('static', filename='js/index.js') }}" defer></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </body>
 </html>

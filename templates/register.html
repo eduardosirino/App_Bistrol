@@ -1,12 +1,15 @@
-<!-- templates/register.html -->
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Registrar</title>
+    <title>Registrar - Análise de Cores - Bristol Parts</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ url_for('static', filename='img/image.png') }}" type="image/x-icon">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/image.png') }}" type="image/x-icon">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
 </head>
 <body>
+    <a href="/"><button class="return">Voltar</button></a>
     <div class="login-container">
         <img src="{{ url_for('static', filename='img/image.png') }}" alt="Bistrol Logo" class="logo">
         <div class="login-form">
@@ -18,6 +21,21 @@
                 <div class="input-group">
                     <label for="email">E-mail</label>
                     <input type="email" id="email" name="email" required>
+                </div>
+                <div class="input-group">
+                    <label for="name">Nome Completo</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div class="input-group">
+                    <label for="office">Cargo</label>
+                    <input type="text" id="office" name="office" required>
+                </div>
+                <div class="input-group">
+                    <label for="profile">Perfil</label>
+                    <select name="profile" id="profile" class="form-control" required>
+                        <option value="COMUM" selected>Comum</option>
+                        <option value="ADMIN">Administrador</option>
+                    </select>
                 </div>
                 <div class="input-group">
                     <label for="password">Senha</label>

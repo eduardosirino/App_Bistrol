@@ -5,7 +5,7 @@
 Primeiro, copie toda a pasta do projeto para o servidor, depois, para instalar todas as dependências do projeto execute os seguintes comandos (uma linha por vez e alterando o path/para/projeto)
 
 Para Windows:
-```
+```sh
 cd ~/path/para/projeto
 
 python -m venv venv
@@ -18,7 +18,7 @@ pip install -r requirements.txt
 ```
 
 Para Linux:
-```
+```sh
 cd ~/path/para/projeto
 
 python3 -m venv venv
@@ -91,6 +91,16 @@ Inclua nele a senha para o Admin, a senha OBRIGATÓRIAMENTE DEVE SER CRIPTOGRAFA
 ADMIN_PROFILE=ADMIN
 ``
 Inclua nele um o tipo do perfil para a conta, deve ser Obrigatóriamente ADMIN, como já está, pois somente dessa forma conseguirá registrar novos usuários
+
+``
+ADMIN_NAME=ADMIN
+``
+Inclua nele um o nome do usuário admin
+
+``
+ADMIN_OFFICE=ADMIN
+``
+Inclua nele um o cargo do usuário admin
 
 ## Após isso:
 

@@ -10,13 +10,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 source: items.map(item => ({ label: item.Nome, value: item.Nome, data: item })),
                 select: function(event, ui) {
                     $('#itemName').val(ui.item.value);
-                    $('#LValue').attr('data-original', ui.item.data['L*']);
-                    $('#AValue').attr('data-original', ui.item.data['a*']);
-                    $('#BValue').attr('data-original', ui.item.data['b*']);
-                    $('#LValue-label').text(ui.item.data['L*']);
-                    $('#AValue-label').text(ui.item.data['a*']);
-                    $('#BValue-label').text(ui.item.data['b*']);
-
                     updateInputColors();
                     generateAnalysis();
                     return false;
@@ -85,6 +78,114 @@ document.addEventListener('DOMContentLoaded', () => {
         Plotly.purge('graph');
     }    
 
+    // Função para adicionar o listener de teclas quando a modal é aberta
+    function addModalKeyListeners() {
+        document.removeEventListener('keydown', originalKeyHandler);
+        document.addEventListener('keydown', modalKeyHandler);
+    }
+
+    // Função para remover o listener de teclas quando a modal é fechada
+    function removeModalKeyListeners() {
+        document.removeEventListener('keydown', modalKeyHandler);
+        document.addEventListener('keydown', originalKeyHandler);
+    }
+
+    // Manipulador de eventos de teclado para a modal
+    function modalKeyHandler(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            $('#change-password-form').submit();
+        } else if (event.key === 'Escape') {
+            event.preventDefault();
+            $('#change-password-modal').dialog('close');
+        }
+    }
+
+    // Manipulador de eventos de teclado original
+    function originalKeyHandler(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            updateInputColors();
+            generateAnalysis();
+        } else if (event.key === 'Escape') {
+            event.preventDefault();
+            resetMainContainer();
+        }
+    }
+
+    // Troca de senha
+    $(document).ready(function() {
+        document.addEventListener('keydown', originalKeyHandler);
+
+        $('#change-password-button').click(function() {
+            $('.modal-overlay').show();
+            $('#change-password-modal').dialog({
+                modal: true,
+                width: 400,
+                close: function() {
+                    removeModalKeyListeners();
+                    $('.modal-overlay').hide();
+                },
+                open: function() {
+                    addModalKeyListeners();
+                },
+                create: function(event, ui) {
+                    var widget = $(this).dialog("widget");
+                    $(".ui-dialog-titlebar-close").appendTo(widget).css({
+                        "position": "absolute",
+                        "top": "10px",
+                        "right": "10px",
+                        "color": "#fff"
+                    });
+                    widget.css("padding", "0");
+                }
+            });
+        });
+
+        $('#cancel-change-password').click(function() {
+            $('#change-password-modal').dialog('close');
+        });
+
+        $('#overlay-modal').click(function() {
+            $('#change-password-modal').dialog('close');
+        });
+
+        $('#change-password-form').submit(function(event) {
+            event.preventDefault();
+            const currentPassword = $('#current-password').val();
+            const newPassword = $('#new-password').val();
+            const confirmPassword = $('#confirm-password').val();
+
+            if (newPassword !== confirmPassword) {
+                alert('A nova senha e a confirmação da nova senha não coincidem!');
+                return;
+            }
+
+            $.ajax({
+                url: '/change-password',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    currentPassword: currentPassword,
+                    newPassword: newPassword
+                }),
+                success: function(response) {
+                    alert(response.message);
+                    if (response.success) {
+                        $('#change-password-modal').dialog('close');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    let errorMessage = "Erro ao tentar trocar a senha.";
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage = xhr.responseJSON.message;
+                    }
+                    alert(errorMessage);
+                }
+            });
+        });
+    });
+
     // Listeners para alterações nos inputs de valores
     document.getElementById('LValue').addEventListener('input', () => {
         updateInputColors();
@@ -97,16 +198,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('BValue').addEventListener('input', () => {
         updateInputColors();
         generateAnalysis();
-    });
-    document.addEventListener('keydown', (event) => {
-        if (event.key === 'Enter') {
-            event.preventDefault();
-            updateInputColors();
-            generateAnalysis();
-        } else if (event.key === 'Escape') {
-            event.preventDefault();
-            resetMainContainer();
-        }
     });
     document.getElementById("reset").addEventListener('click', (event) => {
         event.preventDefault();

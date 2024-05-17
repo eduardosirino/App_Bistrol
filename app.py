@@ -4,10 +4,12 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import mysql.connector
 import pandas as pd
 import json
+import glob
 from plotly.utils import PlotlyJSONEncoder
 import plotly.express as px
 import os
 from dotenv import load_dotenv
+import uuid
 import logging
 from logging.handlers import RotatingFileHandler
 
@@ -21,16 +23,8 @@ logger.addHandler(handler)
 
 load_dotenv()
 
-# Coleta dos dados da planilha
-try:
-    logger.info("Carregando dados da planilha")
-    file_path = 'planilha/7533.xlsx'
-    data = pd.read_excel(file_path, header=0)
-    data.columns = [col.strip() for col in data.columns]
-    data = data.dropna(how='all').fillna(0)
-    logger.info("Dados carregados com sucesso")
-except Exception as e:
-    logger.error(f"Erro ao carregar dados da planilha: {e}")
+# Pasta dos arquivos
+file_path = 'planilha'
 
 # Conexão com o banco de dados
 db_config = {
@@ -50,39 +44,56 @@ login_manager.login_view = 'login'
 login_manager.login_message = 'Por favor, faça login para acessar esta página!'
 
 class User(UserMixin):
-    def __init__(self, id, username, profile):
+    def __init__(self, id, username, profile, name, office):
         self.id = id
         self.username = username
         self.profile = profile
+        self.name = name
+        self.office = office
 
 def get_db_connection():
     return mysql.connector.connect(**db_config)
 
 def check_user_credentials(email, password):
     if email == os.getenv('ADMIN_USERNAME') and check_password_hash(os.getenv('ADMIN_PASSWORD_HASH'), password):
-        return (os.getenv('ADMIN_USER_ID'), os.getenv('ADMIN_USERNAME'), os.getenv('ADMIN_PASSWORD_HASH'), os.getenv('ADMIN_PROFILE'))
+        return User(
+            id=os.getenv('ADMIN_USER_ID'),
+            username=os.getenv('ADMIN_USERNAME'),
+            profile=os.getenv('ADMIN_PROFILE'),
+            name=os.getenv('ADMIN_NAME'),
+            office=os.getenv('ADMIN_OFFICE')
+        )
+    
     connection = get_db_connection()
     cursor = connection.cursor()
-    cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
-    user_pass = cursor.fetchone()
+    cursor.execute("SELECT id, email, password, profile, name, office FROM usersAnaliseCores WHERE email = %s", (email,))
+    user  = cursor.fetchone()
     connection.close()
-    if user_pass and check_password_hash(user_pass[2], password):
-        return user_pass
+
+    if user and check_password_hash(user[2], password):
+        return User(id=user[0], username=user[1], profile=user[3], name=user[4], office=user[5])
     return False
 
 @login_manager.user_loader
 def load_user(user_id):
     try:
         if user_id == os.getenv('ADMIN_USER_ID'):
-            return User(id=os.getenv('ADMIN_USER_ID'), username=os.getenv('ADMIN_USERNAME'), profile=os.getenv('ADMIN_PROFILE'))
+            return User(
+                id=os.getenv('ADMIN_USER_ID'),
+                username=os.getenv('ADMIN_USERNAME'),
+                profile=os.getenv('ADMIN_PROFILE'),
+                name=os.getenv('ADMIN_NAME'),
+                office=os.getenv('ADMIN_OFFICE')
+            )
     
         connection = get_db_connection()
         cursor = connection.cursor()
-        cursor.execute("SELECT * FROM users WHERE id = %s", (user_id,))
+        cursor.execute("SELECT id, email, profile, name, office FROM usersAnaliseCores WHERE id = %s", (user_id,))
         user = cursor.fetchone()
         connection.close()
+
         if user:
-            return User(id=user[0], username=user[1], profile=user[3])
+            return User(id=user[0], username=user[1], profile=user[2], name=user[3], office=user[4])
         return None
     except Exception as e:
         logger.error(f"Erro ao carregar usuário: {e}")
@@ -95,9 +106,9 @@ def login():
             username = request.form.get('username')
             password = request.form.get('password')
             user = check_user_credentials(username, password)
+
             if user:
-                user_obj = User(id=user[0], username=user[1], profile=user[3])
-                login_user(user_obj)
+                login_user(user)
                 return redirect(url_for('index'))
             else:
                 flash('Usuário ou senha inválidos', 'error')
@@ -126,28 +137,40 @@ def register():
         
         if request.method == 'POST':
             email = request.form.get('email')
+            name = request.form.get('name')
+            office = request.form.get('office')
             password = request.form.get('password')
+            profile = request.form.get('profile')
 
-            if not email or not password:
-                flash('E-mail e senha são obrigatórios!', 'error')
+            if ' ' not in name:
+                flash('Nome completo obrigatório!', 'error')
                 return redirect(url_for('register'))
-
+            
+            if profile != 'COMUM' and profile != 'ADMIN':
+                flash('Tipo do perfil obrigatório!', 'error')
+                return redirect(url_for('register'))
+            
+            if not email or not password or not name or not office or not profile:
+                flash('E-mail, nome, senha, cargo e perfil são obrigatórios!', 'error')
+                return redirect(url_for('register'))
+            
             hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
-
+            
             conn = get_db_connection()
             cursor = conn.cursor()
-            cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
+            cursor.execute("SELECT * FROM usersAnaliseCores WHERE email = %s", (email,))
             if cursor.fetchone():
                 flash('Email já cadastrado!', 'error')
                 conn.close()
                 return redirect(url_for('register'))
 
-            cursor.execute("INSERT INTO users (email, password, profile) VALUES (%s, %s, %s)", (email, hashed_password, 'COMUM'))
+            user_id = str(uuid.uuid4())
+            cursor.execute("INSERT INTO usersAnaliseCores (id, email, name, office, password, profile) VALUES (%s, %s, %s, %s, %s, %s)", (user_id, email, name, office, hashed_password, profile))
             conn.commit()
             conn.close()
             flash('Usuário registrado com sucesso!', 'success')
-            logger.info(f"Usuário {email} registrado com sucesso")
-            return redirect(url_for('login'))
+            logger.info(f"Usuário {email} registrado com sucesso com ID {user_id}")
+            return redirect(url_for('register'))
 
         return render_template('register.html')
     except Exception as e:
@@ -169,9 +192,11 @@ def index():
 @login_required
 def item_names():
     try:
-        items = data[['Nome', 'L*', 'a*', 'b*']].drop_duplicates().to_dict(orient='records')
+        file_names = [file.split('.')[0] for file in os.listdir(file_path) if file.endswith('.xlsx')]
+        items = [{'Nome': name} for name in file_names]
         return jsonify(items)
     except Exception as e:
+        print(e)
         logger.error(f"Erro ao listar nomes de itens: {e}")
         return jsonify({'error': 'Erro interno'}), 500
 
@@ -182,40 +207,94 @@ def generate():
         request_data = request.json
         item_name = request_data['name']
 
-        # Buscar dados na planilha pelo nome
-        item_data = data[data['Nome'] == item_name]
-
-        if item_data.empty:
+        item_files = glob.glob(os.path.join(file_path, item_name + '.*'))
+        if not item_files:
             return jsonify({'error': 'Item não encontrado'}), 404
-
+        
+        item_data = pd.read_excel(item_files[0])
+        if 'Nome' not in item_data.columns:
+            return jsonify({'error': 'Coluna "Nome" não encontrada nos dados'}), 500
+        
         # Extrair valores da planilha
-        L_planilha = item_data['L*'].values[0]
-        A_planilha = item_data['a*'].values[0]
-        B_planilha = item_data['b*'].values[0]
+        L_planilha = item_data['L*'].values
+        A_planilha = item_data['a*'].values
+        B_planilha = item_data['b*'].values
+        Nome_planilha = item_data['Nome'].values
 
-        # Verificar e converter os valores recebidos ou usar valores da planilha se vazios ou inválidos
-        def safe_float(value, default):
+        def safe_float(value):
             try:
-                return float(value) if value not in [None, '', ' '] else default
+                return float(value) if value not in [None, '', ' '] else 0
             except ValueError:
-                return default
+                return 0
 
-        L_input = safe_float(request_data.get('L'), L_planilha)
-        A_input = safe_float(request_data.get('A'), A_planilha)
-        B_input = safe_float(request_data.get('B'), B_planilha)
+        L_input = safe_float(request_data.get('L'))
+        A_input = safe_float(request_data.get('A'))
+        B_input = safe_float(request_data.get('B'))
 
-        df = pd.DataFrame({
-            'L*': [L_planilha, L_input],
-            'a*': [A_planilha, A_input],
-            'b*': [B_planilha, B_input],
-            'Status': ['Dado Original', 'Entrada Usuário']
+        # DataFrame com os dados originais
+        df_planilha = pd.DataFrame({
+            'L*': L_planilha,
+            'a*': A_planilha,
+            'b*': B_planilha,
+            'Status': ['Dado Original'] * len(L_planilha),
+            'Nome': Nome_planilha
         })
 
-        fig = px.scatter_3d(df, x='L*', y='a*', z='b*', color='Status')
+        # DataFrame com os dados do usuário
+        df_usuario = pd.DataFrame({
+            'L*': [L_input],
+            'a*': [A_input],
+            'b*': [B_input],
+            'Status': ['Entrada Usuário'],
+            'Nome': ['Dado Usuário']
+        })
+
+        df_final = None
+
+        # Combinar os DataFrames caso tenha valores inseridos pelo usuário
+        df_final = pd.concat([df_planilha, df_usuario], ignore_index=True) if L_input or A_input or B_input else df_planilha
+
+        fig = px.scatter_3d(df_final, x='L*', y='a*', z='b*', color='Status', color_discrete_map={'Dado Original': 'darkblue', 'Entrada Usuário': 'red'}, hover_data=['Status', 'Nome'])
         return jsonify(json.dumps(fig, cls=PlotlyJSONEncoder))
     except Exception as e:
+        print(e)
         logger.error(f"Erro ao gerar gráfico: {e}")
         return jsonify({'error': 'Erro interno'}), 500
+
+@app.route('/change-password', methods=['POST'])
+@login_required
+def change_password():
+    try:
+        data = request.json
+        current_password = data['currentPassword']
+        new_password = data['newPassword']
+
+        connection = get_db_connection()
+        cursor = connection.cursor()
+        cursor.execute("SELECT password FROM usersAnaliseCores WHERE id = %s", (current_user.id,))
+        user_password = cursor.fetchone()
+        connection.close()
+        
+        if not user_password:
+            return jsonify({'success': False, 'message': 'Usuário não encontrado no banco de dados!'}), 400
+
+        # Verificar se a senha atual está correta
+        if not check_password_hash(user_password[0], current_password):
+            return jsonify({'success': False, 'message': 'Senha atual incorreta!'}), 400
+
+        # Atualizar a senha no banco de dados
+        hashed_new_password = generate_password_hash(new_password, method='pbkdf2:sha256')
+        connection = get_db_connection()
+        cursor = connection.cursor()
+        cursor.execute("UPDATE usersAnaliseCores SET password = %s WHERE id = %s", (hashed_new_password, current_user.id))
+        connection.commit()
+        connection.close()
+
+        return jsonify({'success': True, 'message': 'Senha atualizada com sucesso!'})
+    except Exception as e:
+        print(e)
+        logger.error(f"Erro ao trocar a senha: {e}")
+        return jsonify({'success': False, 'message': 'Erro interno'}), 500
 
 @app.errorhandler(404)
 def page_not_found(e):
@@ -223,4 +302,4 @@ def page_not_found(e):
 
 if __name__ == '__main__':
     logger.info("Iniciando o servidor Flask")
-    app.run(debug=False)
+    app.run(debug=True)

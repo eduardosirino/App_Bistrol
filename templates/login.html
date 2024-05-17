@@ -1,9 +1,11 @@
-<!-- templates/login.html -->
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Acesse a sua conta</title>
+    <title>Acesse a sua conta - Análise de Cores - Bristol Parts</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ url_for('static', filename='img/image.png') }}" type="image/x-icon">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/image.png') }}" type="image/x-icon">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
 </head>
 <body>
@@ -25,7 +27,6 @@
                     <span class="show-password" onclick="togglePassword()">Mostrar</span>
                 </div>
                 <button type="submit">Login</button>
-                <!-- <a href="recovery">Esqueceu a senha?</a> -->
             </form>
         </div>
     </div>
