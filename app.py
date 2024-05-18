@@ -7,6 +7,7 @@ import json
 import glob
 from plotly.utils import PlotlyJSONEncoder
 import plotly.express as px
+import plotly.graph_objects as go
 import os
 from dotenv import load_dotenv
 import uuid
@@ -206,20 +207,29 @@ def generate():
     try:
         request_data = request.json
         item_name = request_data['name']
+        nome_field = os.getenv('NOME_FIELD', 'Nome')
+        color_field = os.getenv('COLOR_FIELD', 'Observações')
+        l_field = os.getenv('L_FIELD', 'L*')
+        a_field = os.getenv('A_FIELD', 'a*')
+        b_field = os.getenv('B_FIELD', 'b*')
+        size_spreadsheet = int(os.getenv('SIZE_SPREADSHEET', 5))
+        size_input = int(os.getenv('SIZE_INPUT', 10))
 
         item_files = glob.glob(os.path.join(file_path, item_name + '.*'))
         if not item_files:
             return jsonify({'error': 'Item não encontrado'}), 404
         
         item_data = pd.read_excel(item_files[0])
-        if 'Nome' not in item_data.columns:
-            return jsonify({'error': 'Coluna "Nome" não encontrada nos dados'}), 500
+        required_columns = [nome_field, color_field, l_field, a_field, b_field]
+        if not all(col in item_data.columns for col in required_columns):
+            return jsonify({'error': 'Colunas necessárias não encontradas nos dados'}), 500
         
         # Extrair valores da planilha
-        L_planilha = item_data['L*'].values
-        A_planilha = item_data['a*'].values
-        B_planilha = item_data['b*'].values
-        Nome_planilha = item_data['Nome'].values
+        L_planilha = item_data[l_field].values
+        A_planilha = item_data[a_field].values
+        B_planilha = item_data[b_field].values
+        Nome_planilha = item_data[nome_field].values
+        Observacoes_planilha = item_data[color_field].values
 
         def safe_float(value):
             try:
@@ -231,30 +241,64 @@ def generate():
         A_input = safe_float(request_data.get('A'))
         B_input = safe_float(request_data.get('B'))
 
-        # DataFrame com os dados originais
-        df_planilha = pd.DataFrame({
-            'L*': L_planilha,
-            'a*': A_planilha,
-            'b*': B_planilha,
-            'Status': ['Dado Original'] * len(L_planilha),
-            'Nome': Nome_planilha
-        })
+        # Mapear cores únicas para o campo Observações
+        unique_observacoes = item_data[color_field].unique()
+        distinct_colors = px.colors.qualitative.Alphabet
+        color_map = {obs: distinct_colors[i % len(distinct_colors)] for i, obs in enumerate(unique_observacoes)}
 
-        # DataFrame com os dados do usuário
-        df_usuario = pd.DataFrame({
-            'L*': [L_input],
-            'a*': [A_input],
-            'b*': [B_input],
-            'Status': ['Entrada Usuário'],
-            'Nome': ['Dado Usuário']
-        })
+        # Criar figura com pontos originais
+        fig = go.Figure()
 
-        df_final = None
+        # Adicionar pontos originais
+        for obs in unique_observacoes:
+            mask = Observacoes_planilha == obs
+            fig.add_trace(go.Scatter3d(
+                x=L_planilha[mask],
+                y=A_planilha[mask],
+                z=B_planilha[mask],
+                mode='markers',
+                marker=dict(
+                    size=size_spreadsheet,
+                    color=color_map[obs],
+                    line=dict(width=2, color='DarkSlateGrey')
+                ),
+                text=[f'Nome: {nome}<br>Status: Dado Original<br>Observação: {obs}<br>L*: {L}<br>a*: {A}<br>b*: {B}' for L, A, B, nome in zip(L_planilha[mask], A_planilha[mask], B_planilha[mask], Nome_planilha[mask])],
+                hoverinfo='text',
+                name=obs
+            ))
 
-        # Combinar os DataFrames caso tenha valores inseridos pelo usuário
-        df_final = pd.concat([df_planilha, df_usuario], ignore_index=True) if L_input or A_input or B_input else df_planilha
+        # Adicionar ponto de entrada do usuário
+        if L_input or A_input or B_input:
+            fig.add_trace(go.Scatter3d(
+                x=[L_input],
+                y=[A_input],
+                z=[B_input],
+                mode='markers',
+                marker=dict(
+                    size=size_input,
+                    color='rgb(0,0,0)',
+                    line=dict(width=2, color='DarkSlateGrey')
+                ),
+                text=[f'Nome: Dado Usuário<br>Status: Entrada Usuário<br>Observação: Entrada Usuário<br>L*: {L_input}<br>a*: {A_input}<br>b*: {B_input}'],
+                hoverinfo='text',
+                name='Entrada Usuário'
+            ))
 
-        fig = px.scatter_3d(df_final, x='L*', y='a*', z='b*', color='Status', color_discrete_map={'Dado Original': 'darkblue', 'Entrada Usuário': 'red'}, hover_data=['Status', 'Nome'])
+        # Atualizar layout da figura
+        fig.update_layout(
+            autosize=True,
+            scene=dict(
+                xaxis_title=l_field,
+                yaxis_title=a_field,
+                zaxis_title=b_field
+            ),
+            margin=dict(l=10, r=10, t=10, b=13),
+            legend_title_text=color_field,
+            legend=dict(
+                itemsizing='constant',
+            )
+        )
+
         return jsonify(json.dumps(fig, cls=PlotlyJSONEncoder))
     except Exception as e:
         print(e)

@@ -1,5 +1,7 @@
 # App Bistrol - Análise de Cores
 
+Aplicação para análise de cores dos produtos da Bistrol Parts
+
 ## Instalação do projeto:
 
 Primeiro, copie toda a pasta do projeto para o servidor, depois, para instalar todas as dependências do projeto execute os seguintes comandos (uma linha por vez e alterando o path/para/projeto)
@@ -30,9 +32,11 @@ python3 -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
+&nbsp;
+
 ## Criar tabela de usuários no banco de dados:
 
-Para criar a tabela de acordo com o software, crie através do comando
+Para criar a tabela de acordo com o software, crie através do comando (para Mysql)
 
 ```SQL
 CREATE TABLE usersAnaliseCores (
@@ -44,78 +48,59 @@ CREATE TABLE usersAnaliseCores (
     profile enum('ADMIN', 'COMUM') NOT NULL
 );
 ```
+&nbsp;
 
 ## Configuração do projeto:
 
 Para configurar o projeto, copie o arquivo .env.example e renomeie com o nome .env, depois insira os dados no arquivo.
 
-``
-DATABASE_HOST_BISTROL=
-``
-Inclua nele o host do banco de dados
 
-``
-DATABASE_PORT_BISTROL=
-``
-Inclua nele a porta do banco de dados
+`DATABASE_HOST_BISTROL=` Inclua nele o host do banco de dados
 
-``
-DATABASE_DATABASE_BISTROL=
-``
-Inclua nele o schema do banco de dados onde tem a tabela de usuários
+`DATABASE_PORT_BISTROL=` Inclua nele a porta do banco de dados
 
-``
-DATABASE_USERNAME_BISTROL=
-``
-Inclua nele um username do banco de dados que tem acesso a ``SELECT`` e ``INSERT``
+`DATABASE_DATABASE_BISTROL=` Inclua nele o schema do banco de dados onde tem a tabela de usuários
 
-``
-DATABASE_PASSWORD_BISTROL=
-``
-Inclua nele a senha do username incluso do banco de dados
+`DATABASE_USERNAME_BISTROL=` Inclua nele um username do banco de dados que tem acesso a ``SELECT`` e ``INSERT``
 
-``
-DATABASE_TIMEOUT_BISTROL=
-`` e 
-``
-DATABASE_CONNECTION_LIMIT_BISTROL=
-``
-Inclua neles os valores de timeout e tempo limite de conexão com o banco de dados
+`DATABASE_PASSWORD_BISTROL=` Inclua nele a senha do username incluso do banco de dados
 
-``
-FLASK_SECRET_KEY_BISTROL=
-``
-Inclua nele a secret key para usar no flask, deve ser uma senha aleatória que será usada para criptografar as informações entre o usuário e o servidor, recomendo usar o ``gerar_keys.py`` onde é gerado uma senha aleatória de 24 dígitos para usar nessa senha secreta
+`DATABASE_TIMEOUT_BISTROL=` e `DATABASE_CONNECTION_LIMIT_BISTROL=
+` Inclua neles os valores de timeout e tempo limite de conexão com o banco de dados
 
-``
-ADMIN_USER_ID=
-``
-Inclua nele a id de um usuário admin para poder criar novos usuários, recomendo usar o ``gerar_keys.py`` para ter uma id aleatória e não interferir em outros usuários
+&nbsp;
 
-``
-ADMIN_USERNAME=
-``
-Inclua nele um username ou e-mail para o Admin
+`FLASK_SECRET_KEY_BISTROL=` Inclua nele a secret key para usar no flask, deve ser uma senha aleatória que será usada para criptografar as informações entre o usuário e o servidor, recomendo usar o `gerar_keys.py` onde é gerado uma senha aleatória de 24 dígitos para usar nessa senha secreta
 
-``
-ADMIN_PASSWORD_HASH=
-``
-Inclua nele a senha para o Admin, a senha OBRIGATÓRIAMENTE DEVE SER CRIPTOGRAFADA, para isso, pode usar o ``gerar_password_hash_admin.py`` para criptografar uma senha que queira, e incluir no env
+&nbsp;
 
-``
-ADMIN_PROFILE=ADMIN
-``
-Inclua nele um o tipo do perfil para a conta, deve ser Obrigatóriamente ADMIN, como já está, pois somente dessa forma conseguirá registrar novos usuários
+`ADMIN_USER_ID=` Inclua nele a id de um usuário admin para poder criar novos usuários, recomendo usar o ``gerar_keys.py`` para ter uma id aleatória e não interferir em outros usuários
 
-``
-ADMIN_NAME=ADMIN
-``
-Inclua nele um o nome do usuário admin
+`ADMIN_USERNAME=` Inclua nele um username ou e-mail para o Admin
 
-``
-ADMIN_OFFICE=ADMIN
-``
-Inclua nele um o cargo do usuário admin
+`ADMIN_PASSWORD_HASH=` Inclua nele a senha para o Admin, a senha OBRIGATÓRIAMENTE DEVE SER CRIPTOGRAFADA, para isso, pode usar o ``gerar_password_hash_admin.py`` para criptografar uma senha que queira, e incluir no env
+
+`ADMIN_PROFILE=ADMIN` Inclua nele um o tipo do perfil para a conta, deve ser Obrigatóriamente ADMIN, como já está, pois somente dessa forma conseguirá registrar novos usuários
+
+`ADMIN_NAME=ADMIN` Inclua nele um o nome do usuário admin
+
+`ADMIN_OFFICE=ADMIN` Inclua nele um o cargo do usuário admin 
+
+&nbsp;
+
+`COLOR_FIELD=` Inclua nele um o campo das planilhas que será responsável pela cor
+
+`NOME_FIELD=` Inclua nele um o campo das planilhas que será responsável pelo nome do item/ponto
+
+`L_FIELD=` Inclua nele um o campo das planilhas que será responsável pelo L* original (será usado para coordenada do campo no eixo X)
+
+`A_FIELD=` Inclua nele um o campo das planilhas que será responsável pelo a* original (será usado para coordenada do campo no eixo y)
+
+`B_FIELD=` Inclua nele um o campo das planilhas que será responsável pelo b* original (será usado para coordenada do campo no eixo Z)
+
+`SIZE_SPREADSHEET=` Inclua nele um o tamanho para o ponto gerado pela planilha
+
+`SIZE_INPUT=` Inclua nele um o tamanho para o ponto gerado pelo input, deve ser maior que o `SIZE_SPREADSHEET=` para um maior destaque
 
 ## Após isso:
 
