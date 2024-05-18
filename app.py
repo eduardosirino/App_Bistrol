@@ -197,7 +197,6 @@ def item_names():
         items = [{'Nome': name} for name in file_names]
         return jsonify(items)
     except Exception as e:
-        print(e)
         logger.error(f"Erro ao listar nomes de itens: {e}")
         return jsonify({'error': 'Erro interno'}), 500
 
@@ -301,7 +300,6 @@ def generate():
 
         return jsonify(json.dumps(fig, cls=PlotlyJSONEncoder))
     except Exception as e:
-        print(e)
         logger.error(f"Erro ao gerar gráfico: {e}")
         return jsonify({'error': 'Erro interno'}), 500
 
@@ -336,7 +334,6 @@ def change_password():
 
         return jsonify({'success': True, 'message': 'Senha atualizada com sucesso!'})
     except Exception as e:
-        print(e)
         logger.error(f"Erro ao trocar a senha: {e}")
         return jsonify({'success': False, 'message': 'Erro interno'}), 500
 
