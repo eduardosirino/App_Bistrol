@@ -1,18 +1,20 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for, flash
-from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
-from werkzeug.security import generate_password_hash, check_password_hash
-import mysql.connector
-import pandas as pd
-import json
-import glob
-from plotly.utils import PlotlyJSONEncoder
-import plotly.express as px
-import plotly.graph_objects as go
 import os
-from dotenv import load_dotenv
+import glob
+import json
 import uuid
 import logging
 from logging.handlers import RotatingFileHandler
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask import Flask, render_template, request, jsonify, redirect, url_for, flash
+from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+
+import pandas as pd
+import mysql.connector
+import plotly.express as px
+import plotly.graph_objects as go
+from plotly.utils import PlotlyJSONEncoder
+from dotenv import load_dotenv
+
 
 # Configuração dos Logs
 logger = logging.getLogger('my_application')
@@ -25,7 +27,7 @@ logger.addHandler(handler)
 load_dotenv()
 
 # Pasta dos arquivos
-file_path = 'planilha'
+file_path = os.getenv('PATH_SPREADSHEET')
 
 # Conexão com o banco de dados
 db_config = {

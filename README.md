@@ -88,6 +88,10 @@ Para configurar o projeto, copie o arquivo .env.example e renomeie com o nome .e
 
 &nbsp;
 
+`PATH_SPREADSHEET=` Inclua nele o PATH onde está as planilhas
+
+&nbsp;
+
 `COLOR_FIELD=` Inclua nele um o campo das planilhas que será responsável pela cor
 
 `NOME_FIELD=` Inclua nele um o campo das planilhas que será responsável pelo nome do item/ponto
