@@ -237,7 +237,9 @@ def generate():
             'a*': A_planilha,
             'b*': B_planilha,
             'Status': ['Dado Original'] * len(L_planilha),
-            'Nome': Nome_planilha
+            'Nome': Nome_planilha,
+            'size': [5] * len(L_planilha),  # Tamanho padrão para os pontos
+            'color': [None] * len(L_planilha)  # Placeholder para a cor
         })
 
         # DataFrame com os dados do usuário
@@ -246,15 +248,37 @@ def generate():
             'a*': [A_input],
             'b*': [B_input],
             'Status': ['Entrada Usuário'],
-            'Nome': ['Dado Usuário']
+            'Nome': ['Dado Usuário'],
+            'size': [10],  # Tamanho maior para destaque do ponto de entrada do usuário
+            'color': ['rgb(0,0,0)']  # Cor preta para destaque
         })
-
-        df_final = None
 
         # Combinar os DataFrames caso tenha valores inseridos pelo usuário
         df_final = pd.concat([df_planilha, df_usuario], ignore_index=True) if L_input or A_input or B_input else df_planilha
 
-        fig = px.scatter_3d(df_final, x='L*', y='a*', z='b*', color='Status', color_discrete_map={'Dado Original': 'darkblue', 'Entrada Usuário': 'red'}, hover_data=['Status', 'Nome'])
+        # Normalizar valores de L*, a* e b* para usar nas cores
+        min_L, max_L = df_final['L*'].min(), df_final['L*'].max()
+        min_a, max_a = df_final['a*'].min(), df_final['a*'].max()
+        min_b, max_b = df_final['b*'].min(), df_final['b*'].max()
+
+        # Aplicar cores aos pontos, exceto o ponto de entrada do usuário que já está definido
+        df_final.loc[df_final['color'].isna(), 'color'] = df_final.apply(
+            lambda row: f'rgb({255 * (row["L*"] - min_L) / (max_L - min_L)}, {255 * (row["a*"] - min_a) / (max_a - min_a)}, {255 * (row["b*"] - min_b) / (max_b - min_b)})',
+            axis=1
+        )
+
+        # Adicionar nome e status como combinação para a legenda
+        df_final['label'] = df_final.apply(lambda row: f"{row['Nome']} ({row['Status']})", axis=1)
+
+        fig = px.scatter_3d(
+            df_final, x='L*', y='a*', z='b*',
+            color='label', size='size',
+            color_discrete_map={label: df_final.loc[df_final['label'] == label, 'color'].iloc[0] for label in df_final['label'].unique()},
+        )
+
+        # Adicionar um contorno ao ponto de entrada do usuário
+        fig.update_traces(marker=dict(line=dict(width=2, color='DarkSlateGrey')), selector=dict(size=10))
+        
         return jsonify(json.dumps(fig, cls=PlotlyJSONEncoder))
     except Exception as e:
         print(e)
