@@ -4,6 +4,7 @@ import json
 import uuid
 import logging
 from logging.handlers import RotatingFileHandler
+
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import Flask, render_template, request, jsonify, redirect, url_for, flash
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
@@ -58,23 +59,26 @@ def get_db_connection():
     return mysql.connector.connect(**db_config)
 
 def check_user_credentials(email, password):
-    if email == os.getenv('ADMIN_USERNAME') and check_password_hash(os.getenv('ADMIN_PASSWORD_HASH'), password):
-        return User(
-            id=os.getenv('ADMIN_USER_ID'),
-            username=os.getenv('ADMIN_USERNAME'),
-            profile=os.getenv('ADMIN_PROFILE'),
-            name=os.getenv('ADMIN_NAME'),
-            office=os.getenv('ADMIN_OFFICE')
-        )
-    
+    admin_password_hash = os.getenv('ADMIN_PASSWORD_HASH')
+    if email == os.getenv('ADMIN_USERNAME') and admin_password_hash:
+        if check_password_hash(admin_password_hash, password):
+            return User(
+                id=os.getenv('ADMIN_USER_ID'),
+                username=os.getenv('ADMIN_USERNAME'),
+                profile=os.getenv('ADMIN_PROFILE'),
+                name=os.getenv('ADMIN_NAME'),
+                office=os.getenv('ADMIN_OFFICE')
+            )
+
     connection = get_db_connection()
     cursor = connection.cursor()
     cursor.execute("SELECT id, email, password, profile, name, office FROM usersAnaliseCores WHERE email = %s", (email,))
-    user  = cursor.fetchone()
+    user = cursor.fetchone()
     connection.close()
 
-    if user and check_password_hash(user[2], password):
-        return User(id=user[0], username=user[1], profile=user[3], name=user[4], office=user[5])
+    if user:
+        if check_password_hash(user[2], password):
+            return User(id=user[0], username=user[1], profile=user[3], name=user[4], office=user[5])
     return False
 
 @login_manager.user_loader
@@ -180,7 +184,6 @@ def register():
         logger.error(f"Erro durante o registro: {e}")
         flash('Erro interno', 'error')
         return render_template('register.html'), 500
-    
 
 @app.route('/')
 @login_required
