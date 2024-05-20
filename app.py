@@ -32,15 +32,15 @@ file_path = os.getenv('PATH_SPREADSHEET')
 
 # Conexão com o banco de dados
 db_config = {
-    'host': os.getenv('DATABASE_HOST_BISTROL'),
-    'port': os.getenv('DATABASE_PORT_BISTROL'),
-    'user': os.getenv('DATABASE_USERNAME_BISTROL'),
-    'password': os.getenv('DATABASE_PASSWORD_BISTROL'),
-    'database': os.getenv('DATABASE_DATABASE_BISTROL')
+    'host': os.getenv('DATABASE_HOST_BRISTROL'),
+    'port': os.getenv('DATABASE_PORT_BRISTROL'),
+    'user': os.getenv('DATABASE_USERNAME_BRISTROL'),
+    'password': os.getenv('DATABASE_PASSWORD_BRISTROL'),
+    'database': os.getenv('DATABASE_DATABASE_BRISTROL')
 }
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY_BISTROL', 'super-secret')
+app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY_BRISTROL', 'super-secret')
 
 login_manager = LoginManager()
 login_manager.init_app(app)

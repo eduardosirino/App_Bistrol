@@ -1,6 +1,6 @@
-# App Bistrol - Análise de Cores
+# App Bristrol - Análise de Cores
 
-Aplicação para análise de cores dos produtos da Bistrol Parts
+Aplicação para análise de cores dos produtos da Bristrol Parts
 
 ## Instalação do projeto:
 
@@ -55,22 +55,22 @@ CREATE TABLE usersAnaliseCores (
 Para configurar o projeto, copie o arquivo .env.example e renomeie com o nome .env, depois insira os dados no arquivo.
 
 
-`DATABASE_HOST_BISTROL=` Inclua nele o host do banco de dados
+`DATABASE_HOST_BRISTROL=` Inclua nele o host do banco de dados
 
-`DATABASE_PORT_BISTROL=` Inclua nele a porta do banco de dados
+`DATABASE_PORT_BRISTROL=` Inclua nele a porta do banco de dados
 
-`DATABASE_DATABASE_BISTROL=` Inclua nele o schema do banco de dados onde tem a tabela de usuários
+`DATABASE_DATABASE_BRISTROL=` Inclua nele o schema do banco de dados onde tem a tabela de usuários
 
-`DATABASE_USERNAME_BISTROL=` Inclua nele um username do banco de dados que tem acesso a ``SELECT`` e ``INSERT``
+`DATABASE_USERNAME_BRISTROL=` Inclua nele um username do banco de dados que tem acesso a ``SELECT`` e ``INSERT``
 
-`DATABASE_PASSWORD_BISTROL=` Inclua nele a senha do username incluso do banco de dados
+`DATABASE_PASSWORD_BRISTROL=` Inclua nele a senha do username incluso do banco de dados
 
-`DATABASE_TIMEOUT_BISTROL=` e `DATABASE_CONNECTION_LIMIT_BISTROL=
+`DATABASE_TIMEOUT_BRISTROL=` e `DATABASE_CONNECTION_LIMIT_BRISTROL=
 ` Inclua neles os valores de timeout e tempo limite de conexão com o banco de dados
 
 &nbsp;
 
-`FLASK_SECRET_KEY_BISTROL=` Inclua nele a secret key para usar no flask, deve ser uma senha aleatória que será usada para criptografar as informações entre o usuário e o servidor, recomendo usar o `gerar_keys.py` onde é gerado uma senha aleatória de 24 dígitos para usar nessa senha secreta
+`FLASK_SECRET_KEY_BRISTROL=` Inclua nele a secret key para usar no flask, deve ser uma senha aleatória que será usada para criptografar as informações entre o usuário e o servidor, recomendo usar o `gerar_keys.py` onde é gerado uma senha aleatória de 24 dígitos para usar nessa senha secreta
 
 &nbsp;
 
