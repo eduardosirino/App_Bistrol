@@ -348,4 +348,4 @@ def page_not_found(e):
 
 if __name__ == '__main__':
     logger.info("Iniciando o servidor Flask")
-    app.run(debug=True)
+    app.run(debug=False)
