@@ -1,20 +1,15 @@
-import os
-import glob
-import json
-import uuid
-import logging
-from logging.handlers import RotatingFileHandler
-
-from werkzeug.security import generate_password_hash, check_password_hash
 from flask import Flask, render_template, request, jsonify, redirect, url_for, flash
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
-
-import pandas as pd
+import os
+import logging
+from logging.handlers import RotatingFileHandler
 import mysql.connector
+import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 from plotly.utils import PlotlyJSONEncoder
 from dotenv import load_dotenv
+from werkzeug.security import generate_password_hash, check_password_hash
 
 
 # Configuração dos Logs
@@ -32,15 +27,15 @@ file_path = os.getenv('PATH_SPREADSHEET')
 
 # Conexão com o banco de dados
 db_config = {
-    'host': os.getenv('DATABASE_HOST_BRISTROL'),
-    'port': os.getenv('DATABASE_PORT_BRISTROL'),
-    'user': os.getenv('DATABASE_USERNAME_BRISTROL'),
-    'password': os.getenv('DATABASE_PASSWORD_BRISTROL'),
-    'database': os.getenv('DATABASE_DATABASE_BRISTROL')
+    'host': os.getenv('DATABASE_HOST_BRISTOL'),
+    'port': os.getenv('DATABASE_PORT_BRISTOL'),
+    'user': os.getenv('DATABASE_USERNAME_BRISTOL'),
+    'password': os.getenv('DATABASE_PASSWORD_BRISTOL'),
+    'database': os.getenv('DATABASE_DATABASE_BRISTOL')
 }
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY_BRISTROL', 'super-secret')
+app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY_BRISTOL', 'super-secret')
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -348,4 +343,4 @@ def page_not_found(e):
 
 if __name__ == '__main__':
     logger.info("Iniciando o servidor Flask")
-    app.run(debug=False)
+    app.run(threaded=False, debug=False)
