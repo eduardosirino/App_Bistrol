@@ -225,7 +225,12 @@ def generate():
         required_columns = [nome_field, color_field, l_field, a_field, b_field]
         if not all(col in item_data.columns for col in required_columns):
             return jsonify({'error': 'Colunas necessárias não encontradas nos dados'}), 500
-        
+
+        # Substituir vírgulas por pontos e converter para float
+        item_data[l_field] = item_data[l_field].astype(str).str.replace(',', '.').astype(float)
+        item_data[a_field] = item_data[a_field].astype(str).str.replace(',', '.').astype(float)
+        item_data[b_field] = item_data[b_field].astype(str).str.replace(',', '.').astype(float)
+
         # Extrair valores da planilha
         L_planilha = item_data[l_field].values
         A_planilha = item_data[a_field].values
@@ -233,9 +238,12 @@ def generate():
         Nome_planilha = item_data[nome_field].values
         Observacoes_planilha = item_data[color_field].values
 
+        # Definir observações únicas
+        unique_observacoes = item_data[color_field].unique()
+
         def safe_float(value):
             try:
-                return float(value) if value not in [None, '', ' '] else 0
+                return float(value.replace(',', '.')) if value not in [None, '', ' '] else 0
             except ValueError:
                 return 0
 
@@ -243,10 +251,18 @@ def generate():
         A_input = safe_float(request_data.get('A'))
         B_input = safe_float(request_data.get('B'))
 
-        # Mapear cores únicas para o campo Observações
-        unique_observacoes = item_data[color_field].unique()
-        distinct_colors = px.colors.qualitative.Alphabet
-        color_map = {obs: distinct_colors[i % len(distinct_colors)] for i, obs in enumerate(unique_observacoes)}
+        # Mapear cores específicas
+        color_map = {
+            'aprovado': '#636efa',  # Azul
+            'a': '#636efa',         # Azul
+            'condicional': '#e4eb19', # Amarelo
+            'c': '#e4eb19',          # Amarelo
+            'reprovado': '#ef553b',  # Vermelho
+            'r': '#ef553b'           # Vermelho
+        }
+
+        def get_color(observation):
+            return color_map.get(observation.lower(), 'grey')
 
         # Criar figura com pontos originais
         fig = go.Figure()
@@ -254,6 +270,7 @@ def generate():
         # Adicionar pontos originais
         for obs in unique_observacoes:
             mask = Observacoes_planilha == obs
+            color = get_color(obs)
             fig.add_trace(go.Scatter3d(
                 x=L_planilha[mask],
                 y=A_planilha[mask],
@@ -261,7 +278,7 @@ def generate():
                 mode='markers',
                 marker=dict(
                     size=size_spreadsheet,
-                    color=color_map[obs],
+                    color=color,
                     line=dict(width=2, color='DarkSlateGrey')
                 ),
                 text=[f'Nome: {nome}<br>Status: Dado Original<br>Observação: {obs}<br>L*: {L}<br>a*: {A}<br>b*: {B}' for L, A, B, nome in zip(L_planilha[mask], A_planilha[mask], B_planilha[mask], Nome_planilha[mask])],
@@ -286,15 +303,20 @@ def generate():
                 name='Entrada Usuário'
             ))
 
+        # Calcular limites dos eixos
+        L_min, L_max = min(L_planilha), max(L_planilha)
+        A_min, A_max = min(A_planilha), max(A_planilha)
+        B_min, B_max = min(B_planilha), max(B_planilha)
+
         # Atualizar layout da figura
         fig.update_layout(
             autosize=True,
             scene=dict(
-                xaxis_title=l_field,
-                yaxis_title=a_field,
-                zaxis_title=b_field
+                xaxis=dict(title=l_field, range=[L_min, L_max]),
+                yaxis=dict(title=a_field, range=[A_min, A_max]),
+                zaxis=dict(title=b_field, range=[B_min, B_max])
             ),
-            margin=dict(l=10, r=10, t=10, b=13),
+            margin=dict(l=2, r=10, t=10, b=13),
             legend_title_text=color_field,
             legend=dict(
                 itemsizing='constant',
@@ -303,8 +325,14 @@ def generate():
 
         return jsonify(json.dumps(fig, cls=PlotlyJSONEncoder))
     except Exception as e:
+        print(e)
         logger.error(f"Erro ao gerar gráfico: {e}")
         return jsonify({'error': 'Erro interno'}), 500
+
+
+    
+
+
 
 @app.route('/change-password', methods=['POST'])
 @login_required
@@ -346,4 +374,4 @@ def page_not_found(e):
 
 if __name__ == '__main__':
     logger.info("Iniciando o servidor Flask")
-    app.run(threaded=False, debug=False)
+    app.run(debug=True)

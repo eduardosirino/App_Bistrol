@@ -109,3 +109,19 @@ Para configurar o projeto, copie o arquivo .env.example e renomeie com o nome .e
 ## Após isso:
 
 Prosseguir as configurações do servidor e domínio...
+
+
+
+inicia o servidor com 
+```sh
+nohup gunicorn --workers=1 --threads=1 --bind 0.0.0.0:80 app:app &
+```
+ou
+```sh
+nohup gunicorn --bind 0.0.0.0:80 app:app &
+```
+
+finaliza o processo com
+```sh
+pkill gunicorn
+```
