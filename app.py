@@ -1,16 +1,20 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for, flash
-from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 import os
+import glob
+import json
+import uuid
 import logging
 from logging.handlers import RotatingFileHandler
-import mysql.connector
+
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask import Flask, render_template, request, jsonify, redirect, url_for, flash
+from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+
 import pandas as pd
+import mysql.connector
 import plotly.express as px
 import plotly.graph_objects as go
 from plotly.utils import PlotlyJSONEncoder
 from dotenv import load_dotenv
-from werkzeug.security import generate_password_hash, check_password_hash
-
 
 # Configuração dos Logs
 logger = logging.getLogger('my_application')
@@ -219,14 +223,20 @@ def generate():
             return jsonify({'error': 'Item não encontrado'}), 404
         
         item_data = pd.read_excel(item_files[0])
+
+        # Garantir que as colunas numéricas estejam no formato correto
+        item_data[l_field] = item_data[l_field].apply(pd.to_numeric, errors='coerce')
+        item_data[a_field] = item_data[a_field].apply(pd.to_numeric, errors='coerce')
+        item_data[b_field] = item_data[b_field].apply(pd.to_numeric, errors='coerce')
+        
         required_columns = [nome_field, color_field, l_field, a_field, b_field]
         if not all(col in item_data.columns for col in required_columns):
             return jsonify({'error': 'Colunas necessárias não encontradas nos dados'}), 500
         
         # Extrair valores da planilha
-        L_planilha = item_data[l_field].values
-        A_planilha = item_data[a_field].values
-        B_planilha = item_data[b_field].values
+        L_planilha = item_data[l_field].astype(float).values
+        A_planilha = item_data[a_field].astype(float).values
+        B_planilha = item_data[b_field].astype(float).values
         Nome_planilha = item_data[nome_field].values
         Observacoes_planilha = item_data[color_field].values
 
@@ -240,17 +250,26 @@ def generate():
         A_input = safe_float(request_data.get('A'))
         B_input = safe_float(request_data.get('B'))
 
-        # Mapear cores únicas para o campo Observações
-        unique_observacoes = item_data[color_field].unique()
-        distinct_colors = px.colors.qualitative.Alphabet
-        color_map = {obs: distinct_colors[i % len(distinct_colors)] for i, obs in enumerate(unique_observacoes)}
+        # Mapear cores específicas para condições
+        def get_color(obs):
+            obs_lower = obs.lower()
+            if obs_lower in ['aprovado', 'a']:
+                return 'blue'
+            elif obs_lower in ['condicional', 'c']:
+                return 'yellow'
+            elif obs_lower in ['reprovado', 'r']:
+                return 'red'
+            else:
+                return 'grey'  # Default color for other observations
 
         # Criar figura com pontos originais
         fig = go.Figure()
 
         # Adicionar pontos originais
+        unique_observacoes = item_data[color_field].unique()
         for obs in unique_observacoes:
             mask = Observacoes_planilha == obs
+            color = get_color(obs)
             fig.add_trace(go.Scatter3d(
                 x=L_planilha[mask],
                 y=A_planilha[mask],
@@ -258,7 +277,7 @@ def generate():
                 mode='markers',
                 marker=dict(
                     size=size_spreadsheet,
-                    color=color_map[obs],
+                    color=color,
                     line=dict(width=2, color='DarkSlateGrey')
                 ),
                 text=[f'Nome: {nome}<br>Status: Dado Original<br>Observação: {obs}<br>L*: {L}<br>a*: {A}<br>b*: {B}' for L, A, B, nome in zip(L_planilha[mask], A_planilha[mask], B_planilha[mask], Nome_planilha[mask])],
@@ -283,13 +302,13 @@ def generate():
                 name='Entrada Usuário'
             ))
 
-        # Atualizar layout da figura
+        # Atualizar layout da figura para eixos crescentes
         fig.update_layout(
             autosize=True,
             scene=dict(
-                xaxis_title=l_field,
-                yaxis_title=a_field,
-                zaxis_title=b_field
+                xaxis=dict(title=l_field, range=[min(L_planilha), max(L_planilha)]),
+                yaxis=dict(title=a_field, range=[min(A_planilha), max(A_planilha)]),
+                zaxis=dict(title=b_field, range=[min(B_planilha), max(B_planilha)])
             ),
             margin=dict(l=10, r=10, t=10, b=13),
             legend_title_text=color_field,
@@ -298,8 +317,9 @@ def generate():
             )
         )
 
-        return jsonify(json.dumps(fig, cls=PlotlyJSONEncoder))
+        return jsonify({'graph': fig.to_plotly_json()})
     except Exception as e:
+        print(e)
         logger.error(f"Erro ao gerar gráfico: {e}")
         return jsonify({'error': 'Erro interno'}), 500
 
@@ -343,4 +363,4 @@ def page_not_found(e):
 
 if __name__ == '__main__':
     logger.info("Iniciando o servidor Flask")
-    app.run(threaded=False, debug=False)
+    app.run(debug=True)
